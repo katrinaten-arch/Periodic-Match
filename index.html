@@ -1,0 +1,362 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Chemistry Memory Game</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 25px 15px;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: #315e63;
+      text-align: center;
+      overflow-x: hidden;
+
+      background:
+        radial-gradient(circle at 10% 15%, #ffffff 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 25%, #ffffff 0 2px, transparent 3px),
+        radial-gradient(circle at 30% 75%, #ffffff 0 3px, transparent 4px),
+        radial-gradient(circle at 90% 85%, #ffffff 0 2px, transparent 3px),
+        linear-gradient(135deg, #d8f3e8, #dceefa, #e7f5ee);
+
+      background-size:
+        100px 100px,
+        130px 130px,
+        150px 150px,
+        120px 120px,
+        cover;
+
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      position: relative;
+    }
+
+    .diamond {
+      color: white;
+      font-size: 25px;
+      margin: 5px;
+      text-shadow: 0 2px 8px #ffffff;
+    }
+
+    .header {
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      font-size: 36px;
+      letter-spacing: 3px;
+      color: #267c78;
+      margin: 8px 0;
+      text-shadow: 2px 2px 0 white;
+    }
+
+    .header h2 {
+      font-size: 15px;
+      letter-spacing: 4px;
+      color: #459b78;
+      margin: 5px 0;
+    }
+
+    .header p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .info {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .info-box {
+      background: #ffffffd9;
+      border: 2px solid white;
+      border-radius: 16px;
+      padding: 15px 8px;
+      box-shadow: 0 4px 12px #64748b20;
+    }
+
+    .info-box p {
+      margin: 0 0 7px;
+      font-size: 12px;
+      color: #8793a9;
+    }
+
+    .info-box h3 {
+      margin: 0;
+      font-size: 22px;
+      color: #32867f;
+    }
+
+    .difficulty {
+      display: inline-block;
+      padding: 9px 20px;
+      border-radius: 20px;
+      background: #ffffffc9;
+      color: #459b78;
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 20px;
+      border: 1px solid white;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      height: 110px;
+      border: 2px solid white;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #369a91, #277b83);
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 10px #64748b30;
+      transition: 0.25s;
+      padding: 5px;
+      overflow-wrap: anywhere;
+    }
+
+    .card:hover:not(.matched):not(.flipped) {
+      transform: translateY(-5px);
+      background: linear-gradient(145deg, #71c79b, #45a878);
+    }
+
+    .card.flipped {
+      background: #f6fffb;
+      color: #276f70;
+      border: 2px solid #84cfaa;
+      font-size: 17px;
+      transform: scale(1.02);
+    }
+
+    .card.matched {
+      background: linear-gradient(145deg, #71c79b, #45a878);
+      color: white;
+      border: 2px solid white;
+      cursor: default;
+      opacity: 0.95;
+    }
+
+    #message {
+      min-height: 28px;
+      color: #647da9;
+      font-size: 15px;
+      font-weight: bold;
+      margin: 18px 0;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .buttons button {
+      border: 2px solid white;
+      border-radius: 30px;
+      padding: 12px 25px;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      background: #369a91;
+      box-shadow: 0 4px 10px #64748b25;
+      transition: 0.2s;
+    }
+
+    .buttons button:hover:not(:disabled) {
+      transform: translateY(-3px);
+      background: #45a878;
+    }
+
+    #nextBtn {
+      background: #45a878;
+    }
+
+    #nextBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .footer {
+      margin-top: 30px;
+      color: #ffffff;
+      font-size: 13px;
+      text-shadow: 1px 1px 3px #9aaac5;
+    }
+
+    .sparkle {
+      position: fixed;
+      color: #ffffffb8;
+      font-size: 20px;
+      pointer-events: none;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .sparkle.one {
+      top: 12%;
+      left: 5%;
+    }
+
+    .sparkle.two {
+      top: 35%;
+      right: 5%;
+      animation-delay: 1s;
+    }
+
+    .sparkle.three {
+      bottom: 15%;
+      left: 7%;
+      animation-delay: 2s;
+    }
+
+    .sparkle.four {
+      bottom: 20%;
+      right: 8%;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.6;
+      }
+
+      50% {
+        transform: translateY(-15px) rotate(20deg);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px 10px;
+      }
+
+      .header h1 {
+        font-size: 27px;
+      }
+
+      .info {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .game-board {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+      }
+
+      .card {
+        height: 95px;
+        font-size: 23px;
+      }
+
+      .card.flipped {
+        font-size: 14px;
+      }
+
+      .buttons button {
+        padding: 11px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="sparkle one">⚛</div>
+  <div class="sparkle two">🧪</div>
+  <div class="sparkle three">⚗</div>
+  <div class="sparkle four">◉</div>
+
+  <div class="container">
+
+    <div class="header">
+      <div class="diamond">⚗️ &nbsp; ⚛️ &nbsp; 🧪</div>
+
+      <h1>CHEMISTRY</h1>
+      <h2>MEMORY GAME</h2>
+
+      <p>
+        Cocokkan simbol unsur dengan nama dan jelajahi dunia kimia!
+      </p>
+    </div>
+
+    <div class="info">
+
+      <div class="info-box">
+        <p>RONDE</p>
+        <h3 id="round">1</h3>
+      </div>
+
+      <div class="info-box">
+        <p>PASANGAN</p>
+        <h3 id="matched">0/5</h3>
+      </div>
+
+      <div class="info-box">
+        <p>LANGKAH</p>
+        <h3 id="moves">0</h3>
+      </div>
+
+      <div class="info-box">
+        <p>HIGH SCORE</p>
+        <h3 id="highScore">0</h3>
+      </div>
+
+    </div>
+
+    <div class="difficulty" id="difficulty">
+      ⚛ Kesulitan: Mudah ⚛
+    </div>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <p id="message">
+      Temukan pasangan simbol dan nama unsur!
+    </p>
+
+    <div class="buttons">
+      <button onclick="restartGame()">
+        ↻ Ulangi Game
+      </button>
+
+      <button id="nextBtn" onclick="nextRound()" disabled>
+        Ronde Berikutnya →
+      </button>
+    </div>
+
+    <div class="footer">
+      ⚗️ CHEMISTRY MEMORY GAME 🧪
+      <br>
+      Made with love
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
